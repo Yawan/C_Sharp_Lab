@@ -25,6 +25,8 @@ namespace RetailDesktopUI
                 .Singleton<IWindowManager, WindowManager>()
                 .Singleton<IEventAggregator, EventAggregator>();
 
+            _container
+                .PerRequest<ICalculations, Calculations>();
             // reflection code, but only execute once at bootstrap
             GetType().Assembly.GetTypes()
                 .Where(type => type.IsClass)
