@@ -19,6 +19,27 @@ namespace RetailDesktopUI.ViewModels
             _apiHelper = apiHelper;
         }
 
+        private string _errorMessage;
+
+        public string ErrorMessage
+        {
+            get { return _errorMessage; }
+            set
+            {
+                _errorMessage = value;
+                NotifyOfPropertyChange(() => IsErrorVisible);
+                NotifyOfPropertyChange(() => ErrorMessage);
+            }
+        }
+
+        public bool IsErrorVisible
+        {
+            get
+            {
+                return String.IsNullOrWhiteSpace(ErrorMessage) == false;
+            }
+        }
+
         public string Password
         {
             get { return _password; }
@@ -60,11 +81,12 @@ namespace RetailDesktopUI.ViewModels
         {
             try
             {
+                ErrorMessage = "";
                 var result = await _apiHelper.AuthenticateAsync(UserName, Password);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                ErrorMessage = ex.Message;
             }
         }
     }
