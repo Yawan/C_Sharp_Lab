@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RetailDesktopUI.Library.Api;
 
 namespace RetailDesktopUI.ViewModels
 {
@@ -83,6 +84,9 @@ namespace RetailDesktopUI.ViewModels
             {
                 ErrorMessage = "";
                 var result = await _apiHelper.AuthenticateAsync(UserName, Password);
+
+                // capture more info about the user
+                await _apiHelper.GetLoggedInUserInfo(result.Access_Token);
             }
             catch (Exception ex)
             {
