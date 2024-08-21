@@ -13,24 +13,19 @@ namespace RetailDesktopUI.ViewModels
 {
     public class ShellViewModel : Conductor<object>, IHandle<LogOnEvent>
     {
-        private LoginViewModel _loginVM;
         private SalesViewModel _salesVM;
         private IEventAggregator _events;
+        private SimpleContainer _container;
 
-        public ShellViewModel(IEventAggregator events, LoginViewModel loginVM, SalesViewModel salesVM)
+        public ShellViewModel(IEventAggregator events, SalesViewModel salesVM, SimpleContainer container)
         {
             _events = events;
-            _loginVM = loginVM;
             _salesVM = salesVM;
+            _container = container;
 
             _events.SubscribeOnPublishedThread(this);
-            ActivateItemAsync(_loginVM);
 
-            //var context = SynchronizationContext.Current;
-            //context.Send(async _ =>
-            //{
-            //    await ActivateItemAsync(_loginVM);
-            //}, null);
+            ActivateItemAsync(_container.GetInstance<LoginViewModel>());
         }
 
         async Task IHandle<LogOnEvent>.HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
