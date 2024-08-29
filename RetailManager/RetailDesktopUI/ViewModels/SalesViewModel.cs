@@ -134,10 +134,7 @@ namespace RetailDesktopUI.ViewModels
             if (existingItem != null)
             {
                 existingItem.QuantityInCart += ItemQuantity;
-
-                // HACK There should be a better way to refresh the cart
-                Cart.Remove(existingItem);
-                Cart.Add(existingItem);
+                Cart.ResetBindings();
             }
             else
             {
