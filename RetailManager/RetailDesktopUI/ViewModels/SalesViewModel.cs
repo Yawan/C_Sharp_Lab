@@ -3,6 +3,7 @@ using RetailDesktopUI.Library.Api;
 using RetailDesktopUI.Library.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ namespace RetailDesktopUI.ViewModels
     public class SalesViewModel : Screen
     {
         private IProductEndpoint _productEndpoint;
-        private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
+        private BindableCollection<CartItemModel> _cart = new BindableCollection<CartItemModel>();
         private BindingList<ProductModel> _products;
         private int _itemQuantity = 1;
 
@@ -97,7 +98,7 @@ namespace RetailDesktopUI.ViewModels
             }
         }
 
-        public BindingList<CartItemModel> Cart
+        public BindableCollection<CartItemModel> Cart
         {
             get { return _cart; }
             set
@@ -134,7 +135,7 @@ namespace RetailDesktopUI.ViewModels
             if (existingItem != null)
             {
                 existingItem.QuantityInCart += ItemQuantity;
-                Cart.ResetBindings();
+                Cart.Refresh();
             }
             else
             {
