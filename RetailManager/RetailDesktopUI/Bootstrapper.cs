@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using RetailDesktopUI.Helpers;
 using RetailDesktopUI.Library.Api;
+using RetailDesktopUI.Library.Helpers;
 using RetailDesktopUI.Library.Models;
 using RetailDesktopUI.ViewModels;
 using System;
@@ -29,11 +30,14 @@ namespace RetailDesktopUI
 
         protected override void Configure()
         {
-            _container.Instance(_container);
+            _container.Instance(_container)
+               .PerRequest<IProductEndpoint, ProductEndpoint>();
+
             _container
                 .Singleton<IWindowManager, WindowManager>()
                 .Singleton<IEventAggregator, EventAggregator>()
                 .Singleton<ILoggedInUserModel, LoggedInUserModel>()
+                .Singleton<IConfigHelper, ConfigHelper>()
                 .Singleton<IAPIHelper, APIHelper>();
 
             // reflection code, but only execute once at bootstrap
