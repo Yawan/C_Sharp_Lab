@@ -15,17 +15,15 @@ namespace RetailDesktopUI.ViewModels
     {
         private SalesViewModel _salesVM;
         private IEventAggregator _events;
-        private SimpleContainer _container;
 
-        public ShellViewModel(IEventAggregator events, SalesViewModel salesVM, SimpleContainer container)
+        public ShellViewModel(IEventAggregator events, SalesViewModel salesVM)
         {
             _events = events;
             _salesVM = salesVM;
-            _container = container;
 
             _events.SubscribeOnPublishedThread(this);
 
-            ActivateItemAsync(_container.GetInstance<LoginViewModel>());
+            ActivateItemAsync(IoC.Get<LoginViewModel>());
         }
 
         async Task IHandle<LogOnEvent>.HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
