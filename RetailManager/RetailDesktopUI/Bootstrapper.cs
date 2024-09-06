@@ -30,7 +30,7 @@ namespace RetailDesktopUI
             "PasswordChanged");
         }
 
-        protected override void Configure()
+        private IMapper ConfigureAutoMapper()
         {
             var config = new MapperConfiguration(cfg =>
             {
@@ -39,7 +39,12 @@ namespace RetailDesktopUI
             });
 
             var mapper = config.CreateMapper();
-            _container.Instance(mapper);
+            return mapper;
+        }
+
+        protected override void Configure()
+        {
+            _container.Instance(ConfigureAutoMapper());
 
             _container.Instance(_container)
                .PerRequest<IProductEndpoint, ProductEndpoint>()
