@@ -1,7 +1,9 @@
-﻿using Caliburn.Micro;
+﻿using AutoMapper;
+using Caliburn.Micro;
 using RetailDesktopUI.Library.Api;
 using RetailDesktopUI.Library.Helpers;
 using RetailDesktopUI.Library.Models;
+using RetailDesktopUI.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,24 +19,29 @@ namespace RetailDesktopUI.ViewModels
         private readonly IProductEndpoint _productEndpoint;
         private readonly ISaleEndpoint _saleEndpoint;
         private readonly IConfigHelper _configHelper;
-        private BindableCollection<CartItemModel> _cart = new BindableCollection<CartItemModel>();
-        private BindingList<ProductModel> _products;
+        private readonly IMapper _mapper;
+
+        private BindableCollection<CartItemDisplayModel> _cart = new BindableCollection<CartItemDisplayModel>();
+        private BindingList<ProductDisplayModel> _products;
+
         private int _itemQuantity = 1;
 
-        private ProductModel _selectedProduct;
+        private ProductDisplayModel _selectedProduct;
 
         public SalesViewModel(IProductEndpoint productEndpoint, ISaleEndpoint saleEndpoint,
-            IConfigHelper configHelper)
+            IConfigHelper configHelper, IMapper mapper)
         {
             _productEndpoint = productEndpoint;
             _saleEndpoint = saleEndpoint;
             _configHelper = configHelper;
+            _mapper = mapper;
         }
 
         public async Task LoadProducts()
         {
             var productsList = await _productEndpoint.GetAll();
-            Products = new BindingList<ProductModel>(productsList);
+            var products = _mapper.Map<List<ProductDisplayModel>>(productsList);
+            Products = new BindingList<ProductDisplayModel>(products);
         }
 
         protected override async void OnViewLoaded(object view)
@@ -43,7 +50,7 @@ namespace RetailDesktopUI.ViewModels
             await LoadProducts();
         }
 
-        public ProductModel SelectedProduct
+        public ProductDisplayModel SelectedProduct
         {
             get { return _selectedProduct; }
             set
@@ -107,13 +114,6 @@ namespace RetailDesktopUI.ViewModels
                 .Where(x => x.Product.IsTaxable)
                 .Sum(x => x.Product.RetailPrice * x.QuantityInCart * taxRate);
 
-            //foreach (var item in Cart)
-            //{
-            //    if (item.Product.IsTaxable)
-            //    {
-            //        taxAmount += item.Product.RetailPrice * item.QuantityInCart * taxRate;
-            //    }
-            //}
             return taxAmount;
         }
 
@@ -126,7 +126,7 @@ namespace RetailDesktopUI.ViewModels
             }
         }
 
-        public BindableCollection<CartItemModel> Cart
+        public BindableCollection<CartItemDisplayModel> Cart
         {
             get { return _cart; }
             set
@@ -147,7 +147,7 @@ namespace RetailDesktopUI.ViewModels
             }
         }
 
-        public BindingList<ProductModel> Products
+        public BindingList<ProductDisplayModel> Products
         {
             get { return _products; }
             set
@@ -159,15 +159,14 @@ namespace RetailDesktopUI.ViewModels
 
         public void AddToCart()
         {
-            CartItemModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
+            CartItemDisplayModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
             if (existingItem != null)
             {
                 existingItem.QuantityInCart += ItemQuantity;
-                Cart.Refresh();
             }
             else
             {
-                CartItemModel item = new CartItemModel
+                CartItemDisplayModel item = new CartItemDisplayModel
                 {
                     Product = SelectedProduct,
                     QuantityInCart = ItemQuantity
