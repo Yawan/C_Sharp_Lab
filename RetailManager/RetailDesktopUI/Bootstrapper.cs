@@ -1,8 +1,10 @@
-﻿using Caliburn.Micro;
+﻿using AutoMapper;
+using Caliburn.Micro;
 using RetailDesktopUI.Helpers;
 using RetailDesktopUI.Library.Api;
 using RetailDesktopUI.Library.Helpers;
 using RetailDesktopUI.Library.Models;
+using RetailDesktopUI.Models;
 using RetailDesktopUI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -30,6 +32,15 @@ namespace RetailDesktopUI
 
         protected override void Configure()
         {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<CartItemModel, CartItemDisplayModel>();
+                cfg.CreateMap<ProductModel, ProductDisplayModel>();
+            });
+
+            var mapper = config.CreateMapper();
+            _container.Instance(mapper);
+
             _container.Instance(_container)
                .PerRequest<IProductEndpoint, ProductEndpoint>()
                .PerRequest<ISaleEndpoint, SaleEndpoint>();
