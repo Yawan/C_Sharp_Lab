@@ -17,8 +17,10 @@ namespace RetailDesktopUI.ViewModels
         private readonly IProductEndpoint _productEndpoint;
         private readonly ISaleEndpoint _saleEndpoint;
         private readonly IConfigHelper _configHelper;
+
         private BindableCollection<CartItemModel> _cart = new BindableCollection<CartItemModel>();
         private BindingList<ProductModel> _products;
+
         private int _itemQuantity = 1;
 
         private ProductModel _selectedProduct;
