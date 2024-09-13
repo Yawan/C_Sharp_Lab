@@ -30,5 +30,10 @@ namespace RetailDesktopUI.ViewModels
         {
             await ActivateItemAsync(_salesVM);
         }
+
+        public async Task ExitApplication()
+        {
+            await TryCloseAsync();
+        }
     }
 }
