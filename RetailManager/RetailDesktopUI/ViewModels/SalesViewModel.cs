@@ -78,16 +78,9 @@ namespace RetailDesktopUI.ViewModels
         {
             get
             {
-                bool output = false;
-
                 // Make sure something is selected
                 // Make sure there is an item quantity
-                if (ItemQuantity > 0 && SelectedProduct?.QuantityInStock >= ItemQuantity)
-                {
-                    output = true;
-                }
-
-                return output;
+                return ItemQuantity > 0 && SelectedProduct?.QuantityInStock >= ItemQuantity;
             }
         }
 
@@ -199,14 +192,7 @@ namespace RetailDesktopUI.ViewModels
         {
             get
             {
-                bool output = false;
-
-                if (SelectedCartItem != null && SelectedCartItem?.QuantityInCart > 0)
-                {
-                    output = true;
-                }
-
-                return output;
+                return SelectedCartItem?.QuantityInCart > 0;
             }
         }
 
