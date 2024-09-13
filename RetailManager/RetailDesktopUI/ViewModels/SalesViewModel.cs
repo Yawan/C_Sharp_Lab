@@ -26,8 +26,6 @@ namespace RetailDesktopUI.ViewModels
 
         private int _itemQuantity = 1;
 
-        private ProductDisplayModel _selectedProduct;
-
         public SalesViewModel(IProductEndpoint productEndpoint, ISaleEndpoint saleEndpoint,
             IConfigHelper configHelper, IMapper mapper)
         {
@@ -50,6 +48,8 @@ namespace RetailDesktopUI.ViewModels
             await LoadProducts();
         }
 
+        private ProductDisplayModel _selectedProduct;
+
         public ProductDisplayModel SelectedProduct
         {
             get { return _selectedProduct; }
@@ -58,6 +58,19 @@ namespace RetailDesktopUI.ViewModels
                 _selectedProduct = value;
                 NotifyOfPropertyChange(() => SelectedProduct);
                 NotifyOfPropertyChange(() => CanAddToCart);
+            }
+        }
+
+        private CartItemDisplayModel _selectedCartItem;
+
+        public CartItemDisplayModel SelectedCartItem
+        {
+            get { return _selectedCartItem; }
+            set
+            {
+                _selectedCartItem = value;
+                NotifyOfPropertyChange(() => SelectedCartItem);
+                NotifyOfPropertyChange(() => CanRemoveFromCart);
             }
         }
 
@@ -188,7 +201,10 @@ namespace RetailDesktopUI.ViewModels
             {
                 bool output = false;
 
-                // TODO Make sure something is selected
+                if (SelectedCartItem != null && SelectedCartItem?.QuantityInCart > 0)
+                {
+                    output = true;
+                }
 
                 return output;
             }
@@ -196,10 +212,22 @@ namespace RetailDesktopUI.ViewModels
 
         public void RemoveFromCart()
         {
+            // Cart Quantity - 1 and Stock Quantity + 1
+            SelectedCartItem.Product.QuantityInStock += 1;
+
+            if (SelectedCartItem.QuantityInCart > 1)
+            {
+                SelectedCartItem.QuantityInCart -= 1;
+            }
+            else
+            {
+                Cart.Remove(SelectedCartItem);
+            }
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
             NotifyOfPropertyChange(() => CanCheckOut);
+            NotifyOfPropertyChange(() => CanAddToCart);
         }
 
         public bool CanCheckOut
