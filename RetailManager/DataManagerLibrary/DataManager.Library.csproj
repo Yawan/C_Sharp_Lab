@@ -48,6 +48,7 @@
     <Compile Include="ConfigHelper.cs" />
     <Compile Include="DataAccess\ProductData.cs" />
     <Compile Include="DataAccess\SaleData.cs" />
+    <Compile Include="Internal\DataAccess\DatabaseOperationException.cs" />
     <Compile Include="Models\SaleDBModel.cs" />
     <Compile Include="Models\SaleDetailDBModel.cs" />
     <Compile Include="DataAccess\UserData.cs" />
