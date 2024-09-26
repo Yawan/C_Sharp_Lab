@@ -15,6 +15,7 @@ namespace DataManager.Controllers
     {
         // TODO: check FromBody
         // POST: api/Sale
+        [Authorize(Roles = "Cashier")]
         public void Post([FromBody] SaleModel sale)
         {
             SaleData data = new SaleData();
@@ -23,6 +24,7 @@ namespace DataManager.Controllers
             data.SaveSale(sale, userId);
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         [Route("GetSalesReport")]
         public List<SaleReportModel> GetSalesReport()
         {
