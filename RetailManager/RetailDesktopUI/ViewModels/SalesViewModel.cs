@@ -8,9 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace RetailDesktopUI.ViewModels
 {
@@ -20,19 +22,23 @@ namespace RetailDesktopUI.ViewModels
         private readonly ISaleEndpoint _saleEndpoint;
         private readonly IConfigHelper _configHelper;
         private readonly IMapper _mapper;
-
         private BindableCollection<CartItemDisplayModel> _cart = new BindableCollection<CartItemDisplayModel>();
         private BindingList<ProductDisplayModel> _products;
 
         private int _itemQuantity = 1;
 
+        private readonly StatusInfoViewModel _status;
+        private readonly IWindowManager _window;
+
         public SalesViewModel(IProductEndpoint productEndpoint, ISaleEndpoint saleEndpoint,
-            IConfigHelper configHelper, IMapper mapper)
+            IConfigHelper configHelper, IMapper mapper, StatusInfoViewModel status, IWindowManager window)
         {
             _productEndpoint = productEndpoint;
             _saleEndpoint = saleEndpoint;
             _configHelper = configHelper;
             _mapper = mapper;
+            _status = status;
+            _window = window;
         }
 
         public async Task LoadProducts()
@@ -45,7 +51,29 @@ namespace RetailDesktopUI.ViewModels
         protected override async void OnViewLoaded(object view)
         {
             base.OnViewLoaded(view);
-            await LoadProducts();
+            try
+            {
+                await LoadProducts();
+            }
+            catch (Exception ex)
+            {
+                dynamic settings = new ExpandoObject();
+                settings.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                settings.ResizeMode = ResizeMode.NoResize;
+                settings.Title = "Error";
+
+                if (ex.Message.Equals("Unauthorized"))
+                {
+                    _status.UpdateMessage("Unauthorized Access", "You do not have the permission to interact with the Sales Form.");
+                    await _window.ShowDialogAsync(_status, null, settings);
+                }
+                else
+                {
+                    _status.UpdateMessage("Fatal Exception", ex.Message);
+                    await _window.ShowDialogAsync(_status, null, settings);
+                }
+                await TryCloseAsync();
+            }
         }
 
         private ProductDisplayModel _selectedProduct;
