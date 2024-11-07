@@ -32,6 +32,82 @@ namespace RetailDesktopUI.ViewModels
             }
         }
 
+        private UserModel _selectedUser;
+
+        public UserModel SelectedUser
+        {
+            get { return _selectedUser; }
+            set
+            {
+                _selectedUser = value;
+                SelectedUserName = value.Email; // notify this property changed too.
+                UserRoles = new BindingList<string>(_selectedUser.Roles.Select(x => x.Value).ToList());
+                LoadRoles();
+                NotifyOfPropertyChange(() => SelectedUser);
+            }
+        }
+
+        private string _selectedUserRole;
+
+        public string SelectedUserRole
+        {
+            get { return _selectedUserRole; }
+            set
+            {
+                _selectedUserRole = value;
+                NotifyOfPropertyChange(() => SelectedUserRole);
+            }
+        }
+
+        private string _selectedAvailableRole;
+
+        // Caliburn naming convention: AvailableRoles <=> Selected[AvailableRole]
+        public string SelectedAvailableRole
+        {
+            get { return _selectedAvailableRole; }
+            set
+            {
+                _selectedAvailableRole = value;
+                NotifyOfPropertyChange(() => SelectedAvailableRole);
+            }
+        }
+
+        private string _selectedUserName;
+
+        public string SelectedUserName
+        {
+            get { return _selectedUserName; }
+            set
+            {
+                _selectedUserName = value;
+                NotifyOfPropertyChange(() => SelectedUserName);
+            }
+        }
+
+        private BindingList<string> _userRoles = new BindingList<string>();
+
+        public BindingList<string> UserRoles
+        {
+            get { return _userRoles; }
+            set
+            {
+                _userRoles = value;
+                NotifyOfPropertyChange(() => UserRoles);
+            }
+        }
+
+        private BindingList<string> _availableUserRoles = new BindingList<string>();
+
+        public BindingList<string> AvailableRoles
+        {
+            get { return _availableUserRoles; }
+            set
+            {
+                _availableUserRoles = value;
+                NotifyOfPropertyChange(() => AvailableRoles);
+            }
+        }
+
         public UserDisplayViewModel(StatusInfoViewModel statusInfo, IWindowManager window, IUserEndpoint userEndpoint)
         {
             _status = statusInfo;
@@ -43,6 +119,34 @@ namespace RetailDesktopUI.ViewModels
         {
             var userList = await _userEndpoint.GetAll();
             Users = new BindingList<UserModel>(userList);
+        }
+
+        public async Task LoadRoles()
+        {
+            var roles = await _userEndpoint.GetAllRoles();
+            foreach (var role in roles)
+            {
+                if (UserRoles.IndexOf(role.Value) < 0)
+                {
+                    AvailableRoles.Add(role.Value);
+                }
+            }
+        }
+
+        public async Task AddSelectedRole()
+        {
+            await _userEndpoint.AddUserToRole(SelectedUser.Id, SelectedAvailableRole);
+
+            UserRoles.Add(SelectedAvailableRole);
+            AvailableRoles.Remove(SelectedAvailableRole);
+        }
+
+        public async Task RemoveSelectedRole()
+        {
+            await _userEndpoint.RemoveUserToRole(SelectedUser.Id, SelectedUserRole);
+
+            AvailableRoles.Add(SelectedUserRole);
+            UserRoles.Remove(SelectedUserRole);
         }
 
         protected override async void OnViewLoaded(object view)

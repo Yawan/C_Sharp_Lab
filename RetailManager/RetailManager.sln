@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManager.Library", "Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetailDesktopUI.Library", "RetailDesktopUI.Library\RetailDesktopUI.Library.csproj", "{5F0CB5E0-A6C3-476B-A186-34ACF3EA4D56}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WPF", "WPF", "{906714B7-016E-4F8F-BF59-3B772D3DD09F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E2486188-4085-45FC-AF82-168FF0E20B20} = {906714B7-016E-4F8F-BF59-3B772D3DD09F}
+		{5F0CB5E0-A6C3-476B-A186-34ACF3EA4D56} = {906714B7-016E-4F8F-BF59-3B772D3DD09F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C0C860EC-06E1-4D36-A1E9-4D4461B9FD6F}
