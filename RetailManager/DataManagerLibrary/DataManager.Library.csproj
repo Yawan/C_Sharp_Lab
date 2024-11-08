@@ -65,11 +65,5 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RetailDesktopUI.Library\RetailDesktopUI.Library.csproj">
-      <Project>{5F0CB5E0-A6C3-476B-A186-34ACF3EA4D56}</Project>
-      <Name>RetailDesktopUI.Library</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
