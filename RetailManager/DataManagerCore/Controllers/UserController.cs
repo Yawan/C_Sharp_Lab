@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace DataManagerCore.Controllers
@@ -20,17 +21,22 @@ namespace DataManagerCore.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        private readonly ILogger<UserController> _logger;
+        private readonly IConfiguration _config;
+
+        public UserController(IConfiguration config, ApplicationDbContext context, UserManager<IdentityUser> userManager, ILogger<UserController> logger)
         {
+            _config = config;
             _context = context;
             _userManager = userManager;
+            _logger = logger;
         }
 
         [HttpGet]
         public UserModel GetById()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); //RequestContext.Principal.Identity.GetUserId();
-            UserData data = new UserData();
+            UserData data = new UserData(_config);
 
             return data.GetUserById(userId).First();
         }
@@ -38,7 +44,7 @@ namespace DataManagerCore.Controllers
         [Authorize(Roles = "Admin")]
         // [AllowAnonymous] // swagger API test only
         [HttpGet]
-        [Route("api/User/Admin/GetAllUsers")]
+        [Route("Admin/GetAllUsers")]
         [ProducesResponseType(typeof(List<ApplicationUserModel>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -47,31 +53,33 @@ namespace DataManagerCore.Controllers
         {
             try
             {
-                // 使用單一查詢優化性能
-                var users = await _context.Users
-                    .AsNoTracking()  // 提高性能，因為我們只是讀取數據
-                    .Select(user => new ApplicationUserModel
+                List<ApplicationUserModel> output = new List<ApplicationUserModel>();
+
+                var users = _context.Users.ToList();
+                var userRoles = from ur in _context.UserRoles
+                                join r in _context.Roles on ur.RoleId equals r.Id
+                                select new { ur.UserId, ur.RoleId, r.Name };
+
+                foreach (var user in users)
+                {
+                    ApplicationUserModel u = new ApplicationUserModel
                     {
                         Id = user.Id,
                         Email = user.Email,
-                        Roles = _context.UserRoles
-                            .Where(ur => ur.UserId == user.Id)
-                            .Join(
-                                _context.Roles,
-                                ur => ur.RoleId,
-                                r => r.Id,
-                                (ur, r) => new { ur.RoleId, r.Name }
-                            )
-                            .ToDictionary(x => x.RoleId, x => x.Name)
-                    })
-                    .ToListAsync();
+                    };
 
-                //_logger.LogInformation("Successfully retrieved {Count} users", users.Count);
-                return Ok(users);
+                    u.Roles = userRoles.Where(x => x.UserId == user.Id)
+                        .ToDictionary(x => x.RoleId, x => x.Name);
+
+                    output.Add(u);
+                }
+
+                _logger.LogInformation("Successfully retrieved {Count} users", users.Count);
+                return Ok(output);
             }
             catch (Exception ex)
             {
-                //_logger.LogError(ex, "Error occurred while retrieving users");
+                _logger.LogError(ex, "Error occurred while retrieving users");
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new { message = "An error occurred while processing your request." });
             }
@@ -79,7 +87,7 @@ namespace DataManagerCore.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/User/Admin/GetAllRoles")]
+        [Route("Admin/GetAllRoles")]
         public Dictionary<string, string> GetAllRoles()
         {
             List<ApplicationUserModel> output = new List<ApplicationUserModel>();
@@ -90,7 +98,7 @@ namespace DataManagerCore.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/User/Admin/AddRole")]
+        [Route("Admin/AddRole")]
         public async Task AddRole(UserRolePairModel pairing)
         {
             var user = await _userManager.FindByIdAsync(pairing.UserId);
@@ -99,7 +107,7 @@ namespace DataManagerCore.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/User/Admin/RemoveRole")]
+        [Route("Admin/RemoveRole")]
         public async Task RemoveRole(UserRolePairModel pairing)
         {
             var user = await _userManager.FindByIdAsync(pairing.UserId);
