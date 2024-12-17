@@ -328,3 +328,6 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+RetailManager/DataManagerCore/wwwroot/lib/bootstrap/dist/
+RetailManager/DataManagerCore/wwwroot/lib/jquery/dist/
+RetailManager/DataManagerCore/wwwroot/lib/jquery-validation/dist/

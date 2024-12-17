@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,9 +15,16 @@ namespace DataManager.Library.Internal.DataAccess
     // internal: only used inside this library
     internal class SqlDataAccess : IDisposable
     {
+        public SqlDataAccess(IConfiguration config)
+        {
+            _config = config;
+        }
+
         public string GetConnectionString(string name)
         {
-            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+            //return "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=RetailData;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            return _config.GetConnectionString(name);
+            //return ConfigurationManager.ConnectionStrings[name].ConnectionString;
         }
 
         // note: parameters related to DAPPER
@@ -46,6 +54,7 @@ namespace DataManager.Library.Internal.DataAccess
         private IDbConnection _connection;
         private IDbTransaction _transaction;
         private bool _disposed;
+        private readonly IConfiguration _config;
 
         public void StartTransaction(string connectionStringName)
         {

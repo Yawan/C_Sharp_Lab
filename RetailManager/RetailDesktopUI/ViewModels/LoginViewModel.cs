@@ -12,8 +12,8 @@ namespace RetailDesktopUI.ViewModels
 {
     public class LoginViewModel : Screen
     {
-        private string _userName;
-        private string _password;
+        private string _userName = "Test@mydomain.com";
+        private string _password = "Pwd@12345";
         private readonly IAPIHelper _apiHelper;
         private readonly IEventAggregator _events;
 
