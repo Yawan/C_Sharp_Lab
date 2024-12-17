@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<OutputType>Exe</OutputType>
+		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<RootNamespace>RetailDesktopUI</RootNamespace>
@@ -8,11 +8,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
-	  <PackageReference Include="AutoMapper" Version="13.0.1" />
-	  <PackageReference Include="Caliburn.Micro" Version="4.0.212" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="Caliburn.Micro" Version="4.0.230" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\RetailDesktopUI.Library\RetailDesktopUI.Library.csproj" />
+		<ProjectReference Include="..\RetailDesktopUI.Library\RetailDesktopUI.Library.csproj" />
 	</ItemGroup>
 </Project>
