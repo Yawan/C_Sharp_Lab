@@ -50,20 +50,20 @@ namespace RetailDesktopUI.ViewModels
             NotifyOfPropertyChange(() => IsLoggedIn);
         }
 
-        public void UserManagement()
+        public async Task UserManagement()
         {
-            ActivateItemAsync(IoC.Get<UserDisplayViewModel>());
+            await ActivateItemAsync(IoC.Get<UserDisplayViewModel>());
         }
 
-        async Task IHandle<LogOnEvent>.HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
+        public async Task HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
         {
             await ActivateItemAsync(_salesVM);
             NotifyOfPropertyChange(() => IsLoggedIn);
         }
 
-        public async Task ExitApplication()
+        public void ExitApplication()
         {
-            await TryCloseAsync();
+            TryCloseAsync();
         }
     }
 }

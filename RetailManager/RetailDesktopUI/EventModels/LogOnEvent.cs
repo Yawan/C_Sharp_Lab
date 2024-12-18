@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RetailDesktopUI.EventModels
 {
-    internal class LogOnEvent
+    public class LogOnEvent
     {
     }
 }
