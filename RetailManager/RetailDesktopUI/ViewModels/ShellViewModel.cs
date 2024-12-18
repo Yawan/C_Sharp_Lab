@@ -42,17 +42,23 @@ namespace RetailDesktopUI.ViewModels
             }
         }
 
-        public void LogOut()
+        public async Task LogOut()
         {
             _user.ResetUserModel();
             _apiHelper.LogOffUser();
-            ActivateItemAsync(IoC.Get<LoginViewModel>());
+            await ActivateItemAsync(IoC.Get<LoginViewModel>());
             NotifyOfPropertyChange(() => IsLoggedIn);
+            await _salesVM.ResetSalesViewModel();
         }
 
         public async Task UserManagement()
         {
             await ActivateItemAsync(IoC.Get<UserDisplayViewModel>());
+        }
+
+        public async Task SalesManagement()
+        {
+            await ActivateItemAsync(_salesVM);
         }
 
         public async Task HandleAsync(LogOnEvent message, CancellationToken cancellationToken)

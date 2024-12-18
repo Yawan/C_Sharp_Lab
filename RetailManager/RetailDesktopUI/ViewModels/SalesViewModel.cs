@@ -272,7 +272,7 @@ namespace RetailDesktopUI.ViewModels
             await ResetSalesViewModel();
         }
 
-        private async Task ResetSalesViewModel()
+        internal async Task ResetSalesViewModel()
         {
             Cart = new BindableCollection<CartItemDisplayModel>();
             await LoadProducts();
