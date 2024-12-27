@@ -18,15 +18,15 @@ namespace DataManagerCore.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
+        private readonly IUserData _userData;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
 
         private readonly ILogger<UserController> _logger;
-        private readonly IConfiguration _config;
 
-        public UserController(IConfiguration config, ApplicationDbContext context, UserManager<IdentityUser> userManager, ILogger<UserController> logger)
+        public UserController(IUserData userData, ApplicationDbContext context, UserManager<IdentityUser> userManager, ILogger<UserController> logger)
         {
-            _config = config;
+            _userData = userData;
             _context = context;
             _userManager = userManager;
             _logger = logger;
@@ -36,9 +36,8 @@ namespace DataManagerCore.Controllers
         public UserModel GetById()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); //RequestContext.Principal.Identity.GetUserId();
-            UserData data = new UserData(_config);
 
-            return data.GetUserById(userId).First();
+            return _userData.GetUserById(userId).First();
         }
 
         [Authorize(Roles = "Admin")]

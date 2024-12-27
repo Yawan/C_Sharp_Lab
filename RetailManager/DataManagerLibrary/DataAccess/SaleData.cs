@@ -9,13 +9,15 @@ using System.Threading.Tasks;
 
 namespace DataManager.Library.DataAccess
 {
-    public class SaleData
+    public class SaleData : ISaleData
     {
         private readonly IConfiguration _config;
+        private readonly IProductData _product;
 
-        public SaleData(IConfiguration config)
+        public SaleData(IConfiguration config, IProductData product)
         {
             _config = config;
+            _product = product;
         }
 
         public void SaveSale(SaleModel saleInfo, string cashierId)
@@ -24,7 +26,6 @@ namespace DataManager.Library.DataAccess
 
             // Start filling in the sale detail models we will save to the database
             List<SaleDetailDBModel> details = new List<SaleDetailDBModel>();
-            ProductData products = new ProductData(_config);
             var taxRate = ConfigHelper.GetTaxRate() / 100;
 
             foreach (var item in saleInfo.SaleDetails)
@@ -36,7 +37,7 @@ namespace DataManager.Library.DataAccess
                 };
 
                 // Get the information about this product
-                var productInfo = products.GetProductById(detail.ProductId);
+                var productInfo = _product.GetProductById(detail.ProductId);
 
                 if (productInfo == null)
                 {

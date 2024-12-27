@@ -12,8 +12,7 @@ using System.Threading.Tasks;
 
 namespace DataManager.Library.Internal.DataAccess
 {
-    // internal: only used inside this library
-    internal class SqlDataAccess : IDisposable
+    public class SqlDataAccess : IDisposable, ISqlDataAccess
     {
         public SqlDataAccess(IConfiguration config)
         {
