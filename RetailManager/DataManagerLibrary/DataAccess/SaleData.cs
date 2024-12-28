@@ -11,13 +11,13 @@ namespace DataManager.Library.DataAccess
 {
     public class SaleData : ISaleData
     {
-        private readonly IConfiguration _config;
-        private readonly IProductData _product;
+        private readonly IProductData _productData;
+        private readonly ISqlDataAccess _sql;
 
-        public SaleData(IConfiguration config, IProductData product)
+        public SaleData(IProductData productData, ISqlDataAccess sql)
         {
-            _config = config;
-            _product = product;
+            _productData = productData;
+            _sql = sql;
         }
 
         public void SaveSale(SaleModel saleInfo, string cashierId)
@@ -37,7 +37,7 @@ namespace DataManager.Library.DataAccess
                 };
 
                 // Get the information about this product
-                var productInfo = _product.GetProductById(detail.ProductId);
+                var productInfo = _productData.GetProductById(detail.ProductId);
 
                 if (productInfo == null)
                 {
@@ -65,40 +65,37 @@ namespace DataManager.Library.DataAccess
             sale.Total = sale.SubTotal + sale.Tax;
 
             // Save the Sale model
-            using (SqlDataAccess sql = new SqlDataAccess(_config))
+
+            try
             {
-                try
+                _sql.StartTransaction("RetailData");
+                // int rowsAffected = _sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
+                // Console.WriteLine($"rowsAffected: {rowsAffected}");
+                _sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
+
+                // Get the ID from the sale model
+                sale.Id = _sql.LoadDataInTransaction<int, dynamic>("spSale_Lookup", new { sale.CashierId, sale.SaleDate }).FirstOrDefault();
+
+                // Finish filling in the sale details models
+                foreach (var item in details)
                 {
-                    sql.StartTransaction("RetailData");
-                    // int rowsAffected = sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
-                    // Console.WriteLine($"rowsAffected: {rowsAffected}");
-                    sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
-
-                    // Get the ID from the sale model
-                    sale.Id = sql.LoadDataInTransaction<int, dynamic>("spSale_Lookup", new { sale.CashierId, sale.SaleDate }).FirstOrDefault();
-
-                    // Finish filling in the sale details models
-                    foreach (var item in details)
-                    {
-                        item.SaleId = sale.Id;
-                        // Save the sale detail models
-                        sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
-                    }
-
-                    sql.CommitTransaction();
+                    item.SaleId = sale.Id;
+                    // Save the sale detail models
+                    _sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
                 }
-                catch
-                {
-                    sql.RollbackTransaction();
-                    throw;
-                }
+
+                _sql.CommitTransaction();
+            }
+            catch
+            {
+                _sql.RollbackTransaction();
+                throw;
             }
         }
 
         public List<SaleReportModel> GetSaleReport()
         {
-            SqlDataAccess sql = new SqlDataAccess(_config);
-            var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "RetailData");
+            var output = _sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "RetailData");
             return output;
         }
     }
