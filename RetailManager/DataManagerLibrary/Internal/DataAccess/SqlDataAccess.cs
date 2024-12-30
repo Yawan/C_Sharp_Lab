@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,9 +15,10 @@ namespace DataManager.Library.Internal.DataAccess
 {
     public class SqlDataAccess : IDisposable, ISqlDataAccess
     {
-        public SqlDataAccess(IConfiguration config)
+        public SqlDataAccess(IConfiguration config, ILogger logger)
         {
             _config = config;
+            _logger = logger;
         }
 
         public string GetConnectionString(string name)
@@ -54,6 +56,7 @@ namespace DataManager.Library.Internal.DataAccess
         private IDbTransaction _transaction;
         private bool _disposed;
         private readonly IConfiguration _config;
+        private readonly ILogger _logger;
 
         public void StartTransaction(string connectionStringName)
         {
@@ -95,9 +98,12 @@ namespace DataManager.Library.Internal.DataAccess
             {
                 _transaction.Commit();
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Commit failed");
                 _transaction.Rollback();
+                _logger.LogError("Rollback Transaction.");
+
                 throw;
             }
             finally

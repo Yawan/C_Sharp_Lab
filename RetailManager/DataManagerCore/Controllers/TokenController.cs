@@ -69,6 +69,7 @@ namespace DataManagerCore.Controllers
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
 
+            // todo: move the secret key
             var token = new JwtSecurityToken(
                     new JwtHeader(
                         new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MySecretKeyTBDTestWord1234567890")),

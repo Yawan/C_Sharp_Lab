@@ -100,7 +100,17 @@ namespace DataManagerCore.Controllers
         [Route("Admin/AddRole")]
         public async Task AddRole(UserRolePairModel pairing)
         {
+            string? loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (loggedInUserId == null)
+            {
+                _logger.LogError("Failed in AddRole, loggedInUserId not found");
+                return;
+            }
             var user = await _userManager.FindByIdAsync(pairing.UserId);
+
+            _logger.LogInformation("Admin {Admin} added user {User} to role {Role}",
+                loggedInUserId, user.Id, pairing.RoleName);
+
             await _userManager.AddToRoleAsync(user, pairing.RoleName);
         }
 
@@ -109,7 +119,16 @@ namespace DataManagerCore.Controllers
         [Route("Admin/RemoveRole")]
         public async Task RemoveRole(UserRolePairModel pairing)
         {
+            string? loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (loggedInUserId == null)
+            {
+                _logger.LogError("Failed in RemoveRole, loggedInUserId not found");
+                return;
+            }
             var user = await _userManager.FindByIdAsync(pairing.UserId);
+            _logger.LogInformation("Admin {Admin} remove user {User} from role {Role}",
+                loggedInUserId, user.Id, pairing.RoleName);
             await _userManager.RemoveFromRoleAsync(user, pairing.RoleName);
         }
     }
